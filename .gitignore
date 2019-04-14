@@ -1,5 +1,6 @@
 
-# configuration file
+# Configuration file
 
-.cfg
-
+**/py_cache**
+dwh_init.cfg
+.DS_Store
