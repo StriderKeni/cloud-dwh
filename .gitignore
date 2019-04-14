@@ -1,6 +1,8 @@
-
-# Configuration file
-
+## Folders and directories
 **/py_cache**
+.ipynb_checkpoints
+
+## Files and extensions
+
 dwh_init.cfg
 .DS_Store
