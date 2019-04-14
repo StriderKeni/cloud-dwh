@@ -1,6 +1,9 @@
-## Folders and directories
-**/py_cache**
-.ipynb_checkpoints
+
+# Folders and directories
+
+.*  # ignore all hidden files and folders
+!/.gitignore  # explicitly do not ignore .gitignore
+
 
 ## Files and extensions
 
