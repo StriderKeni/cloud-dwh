@@ -8,5 +8,5 @@
 ## Files and extensions
 
 dwh_init.cfg
-.DS_Store
-.pyc
+*.DS_Store
+*.pyc
