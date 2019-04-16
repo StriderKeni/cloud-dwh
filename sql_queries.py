@@ -61,15 +61,17 @@ CREATE TABLE stg_songs
 songplay_table_create = ("""
 CREATE TABLE songplays
 (
-    songplay_id     INTEGER IDENTITY(1,1),
-    start_time      TIMESTAMP,
-    user_id         VARCHAR,
-    level           VARCHAR,
-    song_id         VARCHAR,
-    session_id      VARCHAR,
-    location        VARCHAR,
-    user_agent      TEXT
-)
+    songplay_id     INTEGER     IDENTITY(1,1),
+    start_time      TIMESTAMP   NOT NULL,
+    user_id         VARCHAR     NOT NULL,
+    level           VARCHAR     NOT NULL,
+    song_id         VARCHAR     NOT NULL,
+    artist_id       VARCHAR     NOT NULL,
+    session_id      VARCHAR     NOT NULL,
+    location        VARCHAR     NOT NULL,
+    user_agent      TEXT        NOT NULL,
+    PRIMARY KEY(songplay_id, user_id)
+)  DISTKEY(user_id) SORTKEY(user_id)
 """)
 
 user_table_create = ("""
@@ -137,11 +139,24 @@ blanksasnull emptyasnull maxerror 50000;
 # FINAL TABLES
 
 songplay_table_insert = ("""
+INSERT INTO SONGPLAYS (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
+SELECT
+(TIMESTAMP 'epoch' + events.ts/1000 * INTERVAL '1 Second') as start_time,
+events.user_id,
+events.level,
+songs.song_id,
+songs.artist_id,
+events.session_id,
+events.location,
+events.user_agent
+FROM stg_events events JOIN stg_songs songs ON (events.artist = songs.artist_name and events.song = songs.title)
+WHERE page = 'NextSong'
+AND user_id is not null;
 """)
 
 user_table_insert = ("""
 INSERT INTO users
-SELECT USER_ID, FIRSTNAME, LAST_NAME, GENDER, LEVEL
+SELECT USER_ID, FIRST_NAME, LAST_NAME, GENDER, LEVEL
 FROM public.stg_events WHERE USER_ID IS NOT NULL;
 """)
 
