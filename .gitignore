@@ -1,12 +1,28 @@
+# Don't track content of these folders
+config/
+.*
+!/.gitignore
 
-# Folders and directories
-
-.* 
-!/.gitignore 
-
-
-## Files and extensions
-
-dwh_init.cfg
-*.DS_Store
+# Don't track these files
+.cache-StriderKeni
 *.pyc
+*.DS_Store
+dwh_init.cfg
+
+# Compiled source #
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
