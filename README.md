@@ -1,4 +1,4 @@
-# Cloud DWH with AWS
+# Cloud DWH with AWS [![Build Status](https://travis-ci.org/kennycontreras/cloud-dwh.svg?branch=master)](https://travis-ci.org/kennycontreras/cloud-dwh)
 
 Cloud DataWareHouse is an ETL project for a startup called Sparkify.
 This project create a database based on a star-schema. The database is located in Amazon Redshift which is a columnar database part of the larger cloud-computing platform Amazon Web Services. One of the features of Amazon Redshift is it's build on a columnar storage arquitecture allowing fast writing for Big-Data.
