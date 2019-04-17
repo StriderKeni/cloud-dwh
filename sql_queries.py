@@ -138,6 +138,11 @@ blanksasnull emptyasnull maxerror 50000;
 
 # FINAL TABLES
 
+'''
+No need to add DISTINCT for our songplays table because there's no duplicate data
+from our select from staging tables.
+'''
+
 songplay_table_insert = ("""
 INSERT INTO SONGPLAYS (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
 SELECT
@@ -154,27 +159,35 @@ WHERE page = 'NextSong'
 AND user_id is not null;
 """)
 
+
+'''
+The insert statement for users contains a ROW_NUMBER, this because there are a lot of
+duplicate data from the logs. Order the data BY level DESC will allow to prioritize
+paid level than free level.
+'''
+
 user_table_insert = ("""
 INSERT INTO users
-SELECT USER_ID, FIRST_NAME, LAST_NAME, GENDER, LEVEL
-FROM public.stg_events WHERE USER_ID IS NOT NULL;
+SELECT user_id, first_name, last_name, gender, level FROM (
+SELECT user_id, ROW_NUMBER() OVER(PARTITION BY USER_ID ORDER BY level DESC) NUMB, first_name, last_name, gender, level
+FROM public."users") users_filter WHERE numb = 1 AND user_id IS NOT NULL
 """)
 
 song_table_insert = ("""
 INSERT INTO songs
-SELECT song_id, title, artist_id, year, duration
+SELECT DISTINCT song_id, title, artist_id, year, duration
 FROM public.stg_songs;
 """)
 
 artist_table_insert = ("""
 INSERT INTO artists
-SELECT ARTIST_ID, ARTIST_NAME, ARTIST_LOCATION, ARTIST_LATITUDE, ARTIST_LONGITUDE
+SELECT DISTINCT ARTIST_ID, ARTIST_NAME, ARTIST_LOCATION, ARTIST_LATITUDE, ARTIST_LONGITUDE
 FROM public.stg_songs;
 """)
 
 time_table_insert = ("""
 INSERT INTO time
-SELECT
+SELECT DISTINCT
 TS as START_TIME,
 extract(hour FROM TS) as HOUR,
 EXTRACT(WEEK FROM TS) as WEEK,
