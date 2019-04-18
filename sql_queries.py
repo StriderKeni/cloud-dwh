@@ -170,7 +170,7 @@ user_table_insert = ("""
 INSERT INTO users
 SELECT user_id, first_name, last_name, gender, level FROM (
 SELECT user_id, ROW_NUMBER() OVER(PARTITION BY USER_ID ORDER BY level DESC) NUMB, first_name, last_name, gender, level
-FROM public."users") users_filter WHERE numb = 1 AND user_id IS NOT NULL
+FROM public.stg_events) users_filter WHERE numb = 1 AND user_id IS NOT NULL
 """)
 
 song_table_insert = ("""
