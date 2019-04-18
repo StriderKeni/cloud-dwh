@@ -9,8 +9,8 @@ def drop_tables(cur, conn):
     Args:
         cur (object) = Cursor object from psycopg2 connection
         conn (object) = Connection to Amazon Redshift
-        drop_table_queries (list) = List of drop table statements
-        table_list (list) = List of all table names
+        drop_table_queries (list) = List of drop table statement variables
+        table_list (list) = List of table names
     '''
 
     print('\n*** Dropping tables... ***\n')
@@ -29,8 +29,8 @@ def create_tables(cur, conn):
     Args:
         cur (object) = Cursor object from psycopg2 connection
         conn (object) = Connection to Amazon Redshift
-        drop_table_queries (list) = List of drop table statements
-        table_list (list) = List of all table names
+        drop_table_queries (list) = List of create table statement variables
+        table_list (list) = List of table names
     '''
 
     print('\n*** Creating tables... ***\n')
