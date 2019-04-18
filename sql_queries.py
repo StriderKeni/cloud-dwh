@@ -64,13 +64,13 @@ CREATE TABLE songplays
     songplay_id     INTEGER     IDENTITY(1,1),
     start_time      TIMESTAMP   NOT NULL,
     user_id         VARCHAR     NOT NULL,
-    level           VARCHAR     NOT NULL,
+    level           VARCHAR(10),
     song_id         VARCHAR     NOT NULL,
     artist_id       VARCHAR     NOT NULL,
-    session_id      VARCHAR     NOT NULL,
-    location        VARCHAR     NOT NULL,
-    user_agent      TEXT        NOT NULL,
-    PRIMARY KEY(songplay_id, user_id)
+    session_id      VARCHAR,
+    location        VARCHAR,
+    user_agent      TEXT,
+    PRIMARY KEY(songplay_id)
 )  DISTKEY(user_id) SORTKEY(user_id)
 """)
 
@@ -78,10 +78,11 @@ user_table_create = ("""
 CREATE TABLE users
 (
     user_id     INTEGER     NOT NULL,
-    first_name  VARCHAR     NOT NULL,
-    last_name   VARCHAR     NOT NULL,
-    gender      CHAR(2)     NOT NULL,
-    level       VARCHAR(10) NOT NULL
+    first_name  VARCHAR,
+    last_name   VARCHAR,
+    gender      CHAR(2),
+    level       VARCHAR(10),
+    PRIMARY KEY(user_id)
 ) DISTKEY(user_id) SORTKEY(user_id);
 """)
 
@@ -89,10 +90,11 @@ song_table_create = ("""
 CREATE TABLE songs
 (
     song_id     VARCHAR         NOT NULL,
-    title       VARCHAR         NOT NULL,
+    title       VARCHAR,
     artist_id   VARCHAR         NOT NULL,
-    year        INTEGER         NOT NULL,
-    duration    NUMERIC(18,0)   NOT NULL
+    year        INTEGER,
+    duration    NUMERIC(18,0),
+    PRIMARY KEY(song_id)
 ) DISTKEY(artist_id) SORTKEY(artist_id)
 """)
 
@@ -100,10 +102,11 @@ artist_table_create = ("""
 CREATE TABLE artists
 (
     artist_id   VARCHAR         NOT NULL,
-    name        VARCHAR         NOT NULL,
+    name        VARCHAR,
     location    VARCHAR,
     lattitude   NUMERIC(18,0),
-    longitude   NUMERIC(18,0)
+    longitude   NUMERIC(18,0),
+    PRIMARY KEY(artist_id)
 ) DISTKEY(artist_id) SORTKEY(artist_id);
 """)
 
@@ -111,11 +114,12 @@ time_table_create = ("""
 CREATE TABLE time
 (
     start_time  TIMESTAMP   NOT NULL,
-    hour        INTEGER     NOT NULL,
-    week        INTEGER     NOT NULL,
-    month       INTEGER     NOT NULL,
-    year        INTEGER     NOT NULL,
-    weekday     INTEGER     NOT NULL
+    hour        INTEGER,
+    week        INTEGER,
+    month       INTEGER,
+    year        INTEGER,
+    weekday     INTEGER,
+    PRIMARY KEY(start_time)
 ) DISTSTYLE ALL
 """)
 
@@ -139,12 +143,12 @@ blanksasnull emptyasnull maxerror 50000;
 # FINAL TABLES
 
 '''
-No need to add DISTINCT for our songplays table because there's no duplicate data
-from our select from staging tables.
+No need to add DISTINCT for songplays table
+because there's no duplicate data from joining events and songs staging tables.
 '''
 
 songplay_table_insert = ("""
-INSERT INTO SONGPLAYS (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
+INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
 SELECT
 (TIMESTAMP 'epoch' + events.ts/1000 * INTERVAL '1 Second') as start_time,
 events.user_id,
@@ -162,13 +166,13 @@ AND user_id is not null;
 
 '''
 The insert statement for users contains a ROW_NUMBER, this because there are a lot of
-duplicate data from the logs. Order the data BY level DESC will allow to prioritize
+duplicate data from logs files. Order the data BY level DESC will allow to prioritize
 paid level than free level.
 '''
 
 user_table_insert = ("""
 INSERT INTO users
-SELECT user_id, first_name, last_name, gender, level FROM (
+SELECT DISTINCT user_id, first_name, last_name, gender, level FROM (
 SELECT user_id, ROW_NUMBER() OVER(PARTITION BY USER_ID ORDER BY level DESC) NUMB, first_name, last_name, gender, level
 FROM public.stg_events) users_filter WHERE numb = 1 AND user_id IS NOT NULL
 """)
@@ -181,7 +185,7 @@ FROM public.stg_songs;
 
 artist_table_insert = ("""
 INSERT INTO artists
-SELECT DISTINCT ARTIST_ID, ARTIST_NAME, ARTIST_LOCATION, ARTIST_LATITUDE, ARTIST_LONGITUDE
+SELECT DISTINCT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
 FROM public.stg_songs;
 """)
 
